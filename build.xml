@@ -1,0 +1,12 @@
+<project default="compile">
+	<path id="class.path">
+		<fileset dir="JavaEE">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	<target name="compile">
+		<javac srcdir="src" destdir="/usr/local/Cellar/tomcat/8.0.15/libexec/webapps/ROOT/WEB-INF/classes" includeantruntime="false">
+			<classpath refid="class.path"/>
+		</javac>
+	</target>
+</project>

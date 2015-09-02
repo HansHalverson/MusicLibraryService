@@ -1,0 +1,6 @@
+#Ignore all JavaEE files
+JavaEE/
+
+#Ignore all IntelliJ project files
+.idea/
+*.iml
