@@ -2,6 +2,8 @@ package database;
 
 import model.JsonMappable;
 import repository.Repository;
+import util.MusicLibraryRequestException;
+import util.SQLUtil;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -107,13 +109,16 @@ public class MusicDatabase {
         return entry;
     }
 
-    public static List<JsonMappable> getFilteredEntries(Repository repository, Map<String, String> queryParams) throws SQLException {
+    public static List<JsonMappable> getFilteredEntries(Repository repository, Map<String, String> queryParams) throws SQLException, MusicLibraryRequestException {
         List<JsonMappable> entries = new ArrayList<>();
-        Statement statement = null;
+        PreparedStatement statement = null;
 
         try {
-            statement = connection.createStatement();
-            ResultSet result = statement.executeQuery("");
+            Map<String, String> sqlParams = SQLUtil.formatQueryParams(repository, queryParams);
+            statement = connection.prepareStatement("SELECT * FROM " + repository.getTableName() + " WHERE " + SQLUtil.createQueryTemplate(sqlParams.size()) + ";");
+
+
+            ResultSet result = statement.executeQuery();
 
             while(result.next()) {
                 JsonMappable entry = repository.objectFromResultSet(result);

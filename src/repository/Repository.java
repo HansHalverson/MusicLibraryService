@@ -17,6 +17,8 @@ public abstract class Repository<T> {
 
     public abstract String getTableName();
 
+    public abstract Map<String, String> getParamsToColumnNames();
+
     public JsonValue handleGet(HttpServletRequest request) throws MusicLibraryRequestException {
         String resourceId = UrlUtil.getPathSegment(request, 2);
         Map<String, String> queryParams = UrlUtil.getQueryParameters(request);
@@ -75,7 +77,7 @@ public abstract class Repository<T> {
         return builder.build();
     }
 
-    private JsonArray getFilteredEntries(Map<String, String> queryParams) {
+    private JsonArray getFilteredEntries(Map<String, String> queryParams) throws MusicLibraryRequestException {
         JsonArrayBuilder builder = Json.createArrayBuilder();
 
         try {

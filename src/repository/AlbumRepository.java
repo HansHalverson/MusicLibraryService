@@ -5,12 +5,25 @@ import model.JsonMappable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AlbumRepository extends Repository<Album> {
 
     @Override
     public String getTableName() {
         return "album";
+    }
+
+    @Override
+    public Map<String, String> getParamsToColumnNames() {
+        Map<String, String> paramsToColumnNames = new HashMap<>();
+
+        paramsToColumnNames.put("id", "album_id");
+        paramsToColumnNames.put("name", "name");
+        paramsToColumnNames.put("artistId", "artist_id");
+
+        return paramsToColumnNames;
     }
 
     @Override

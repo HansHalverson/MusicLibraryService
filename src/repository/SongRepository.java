@@ -5,12 +5,30 @@ import model.Song;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SongRepository extends Repository<Song> {
 
     @Override
     public String getTableName() {
         return "song";
+    }
+
+    @Override
+    public Map<String, String> getParamsToColumnNames() {
+        Map<String, String> paramsToColumnNames = new HashMap<>();
+
+        paramsToColumnNames.put("id", "song_id");
+        paramsToColumnNames.put("name", "name");
+        paramsToColumnNames.put("file", "file");
+        paramsToColumnNames.put("time", "time");
+        paramsToColumnNames.put("plays", "plays");
+        paramsToColumnNames.put("trackNumber", "track_number");
+        paramsToColumnNames.put("discNumber", "disc_number");
+        paramsToColumnNames.put("albumId", "album_id");
+
+        return paramsToColumnNames;
     }
 
     @Override
