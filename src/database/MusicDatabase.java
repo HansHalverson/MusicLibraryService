@@ -1,12 +1,11 @@
 package database;
 
-import com.mysql.jdbc.Driver;
+import model.Artist;
+import model.Song;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MusicDatabase {
 
@@ -14,30 +13,80 @@ public class MusicDatabase {
     private final String username = "java";
     private final String password = "javapass";
 
-    public MusicDatabase() {
-        System.out.println("Loading driver...");
+    private static Connection connection;
 
+    private static MusicDatabase database;
+
+    private MusicDatabase() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            System.out.println("Driver loaded!");
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Cannot find the driver in the classpath!", e);
         }
 
-
-
-        System.out.println("Connecting database...");
-
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
-            System.out.println("Database connected!");
+        try {
+            connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             throw new IllegalStateException("Cannot connect the database!", e);
         }
-
-        initDatabase();
     }
 
-    private void initDatabase() {
+    public static void init() throws ExceptionInInitializerError, SQLException {
+        if (database != null) {
+            throw new ExceptionInInitializerError();
+        } else {
+            database = new MusicDatabase();
 
+            // Use the music_library database
+            Statement statement = null;
+
+            try {
+                statement = connection.createStatement();
+                statement.executeQuery("USE music_library;");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                if (statement != null) {
+                    statement.close();
+                }
+            }
+        }
+    }
+
+    private static Artist artistFromResultSet(ResultSet resultSet) {
+        try {
+            int id = resultSet.getInt("artist_id");
+            String name = resultSet.getString("name");
+            return new Artist(id, name);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<Artist> getAllArtists() throws SQLException {
+        List<Artist> artists = new ArrayList<>();
+        Statement statement = null;
+
+        try {
+            statement = connection.createStatement();
+            ResultSet result = statement.executeQuery("SELECT * FROM artist;");
+
+            while(result.next()) {
+                Artist artist = artistFromResultSet(result);
+                if (artist != null) {
+                    artists.add(artist);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+
+        return artists;
     }
 }
