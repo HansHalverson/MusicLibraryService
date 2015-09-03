@@ -15,7 +15,6 @@ public class AlbumRepository extends Repository<Album> {
 
     public AlbumRepository() {
         paramsToColumns = new HashMap<>();
-        paramsToColumns.put("id", new Column("album_id", Column.ColumnType.INT));
         paramsToColumns.put("name", new Column("name", Column.ColumnType.STRING));
         paramsToColumns.put("artistId", new Column("artist_id", Column.ColumnType.INT));
     }

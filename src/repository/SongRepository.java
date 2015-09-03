@@ -15,7 +15,6 @@ public class SongRepository extends Repository<Song> {
 
     public SongRepository() {
         paramsToColumns = new HashMap<>();
-        paramsToColumns.put("id", new Column("song_id", Column.ColumnType.INT));
         paramsToColumns.put("name", new Column("name", Column.ColumnType.STRING));
         paramsToColumns.put("file", new Column("file", Column.ColumnType.STRING));
         paramsToColumns.put("time", new Column("time", Column.ColumnType.INT));

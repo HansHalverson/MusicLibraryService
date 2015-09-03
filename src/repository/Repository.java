@@ -9,6 +9,7 @@ import util.UrlUtil;
 import javax.json.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -19,6 +20,8 @@ public abstract class Repository<T> {
     public abstract String getTableName();
 
     public abstract Map<String, Column> getParamsToColumns();
+
+    public abstract JsonMappable objectFromResultSet(ResultSet result);
 
     public JsonValue handleGet(HttpServletRequest request) throws MusicLibraryRequestException {
         String resourceId = UrlUtil.getPathSegment(request, 2);
@@ -43,7 +46,26 @@ public abstract class Repository<T> {
         }
     }
 
-    private JsonArray getAllEntries() {
+    public void handlePost(HttpServletRequest request) throws MusicLibraryRequestException {
+        String resourceId = UrlUtil.getPathSegment(request, 2);
+
+        if (resourceId == null) {
+            try {
+                JsonReader reader = Json.createReader(request.getInputStream());
+                JsonArray newEntries = reader.readArray();
+                MusicDatabase.createEntries(newEntries);
+
+            } catch (IOException | SQLException e) {
+                e.printStackTrace();
+                throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            }
+
+        } else {
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_NOT_FOUND, "Cannot POST to resource");
+        }
+    }
+
+    private JsonArray getAllEntries() throws MusicLibraryRequestException {
         JsonArrayBuilder builder = Json.createArrayBuilder();
 
         try {
@@ -54,6 +76,7 @@ public abstract class Repository<T> {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
         return builder.build();
@@ -73,6 +96,7 @@ public abstract class Repository<T> {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
         return builder.build();
@@ -89,10 +113,9 @@ public abstract class Repository<T> {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
 
         return builder.build();
     }
-
-    public abstract JsonMappable objectFromResultSet(ResultSet result);
 }

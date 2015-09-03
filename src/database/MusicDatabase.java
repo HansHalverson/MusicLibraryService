@@ -5,6 +5,7 @@ import repository.Repository;
 import util.MusicLibraryRequestException;
 import util.SQLUtil;
 
+import javax.json.JsonArray;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
 import java.util.ArrayList;
@@ -154,5 +155,20 @@ public class MusicDatabase {
         }
 
         return entries;
+    }
+
+    public static void createEntries(JsonArray newEntries) throws SQLException {
+        PreparedStatement statement = null;
+
+        try {
+            statement = connection.prepareStatement("");
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
     }
 }

@@ -15,7 +15,6 @@ public class GenreRepository extends Repository<Genre> {
 
     public GenreRepository() {
         paramsToColumns = new HashMap<>();
-        paramsToColumns.put("id", new Column("genre_id", Column.ColumnType.INT));
         paramsToColumns.put("name", new Column("name", Column.ColumnType.STRING));
         paramsToColumns.put("supergenreId", new Column("supergenre_id", Column.ColumnType.INT));
     }
