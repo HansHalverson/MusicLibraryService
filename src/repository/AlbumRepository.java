@@ -18,7 +18,8 @@ public class AlbumRepository extends Repository<Album> {
         try {
             int id = resultSet.getInt("album_id");
             String name = resultSet.getString("name");
-            return new Album(id, name);
+            int artistId = resultSet.getInt("artist_id");
+            return new Album(id, name, artistId);
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

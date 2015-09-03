@@ -23,8 +23,9 @@ public class SongRepository extends Repository<Song> {
             int plays = resultSet.getInt("plays");
             int trackNumber = resultSet.getInt("track_number");
             int discNumber = resultSet.getInt("disc_number");
+            int albumId = resultSet.getInt("album_id");
 
-            return new Song(id, name, file, time, plays, trackNumber, discNumber);
+            return new Song(id, name, file, time, plays, trackNumber, discNumber, albumId);
 
         } catch (SQLException e) {
             e.printStackTrace();

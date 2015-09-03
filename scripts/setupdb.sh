@@ -27,7 +27,9 @@ if mysql.server start; then
 		CREATE TABLE IF NOT EXISTS genre (
 			genre_id INT NOT NULL,
 			name VARCHAR(255),
-			PRIMARY KEY (genre_id));
+			supergenre_id INT,
+			PRIMARY KEY (genre_id),
+			FOREIGN KEY (supergenre_id) REFERENCES genre(genre_id));
 		CREATE TABLE IF NOT EXISTS album_genre (
 			album_id INT NOT NULL,
 			genre_id INT NOT NULL,

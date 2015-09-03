@@ -11,8 +11,9 @@ public class Song implements JsonMappable {
     private int plays;
     private int trackNumber;
     private int discNumber;
+    private int albumId;
 
-    public Song(int id, String name, String file, int time, int plays, int trackNumber, int discNumber) {
+    public Song(int id, String name, String file, int time, int plays, int trackNumber, int discNumber, int albumId) {
         this.id = id;
         this.name = name;
         this.file = file;
@@ -20,6 +21,7 @@ public class Song implements JsonMappable {
         this.plays = plays;
         this.trackNumber = trackNumber;
         this.discNumber = discNumber;
+        this.albumId = albumId;
     }
 
     public int getId() {
@@ -50,6 +52,10 @@ public class Song implements JsonMappable {
         return trackNumber;
     }
 
+    public int getAlbumId() {
+        return albumId;
+    }
+
     @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
@@ -61,6 +67,7 @@ public class Song implements JsonMappable {
         builder.add("plays", plays);
         builder.add("trackNumber", trackNumber);
         builder.add("discNumber", discNumber);
+        builder.add("albumId", albumId);
 
         return builder;
     }

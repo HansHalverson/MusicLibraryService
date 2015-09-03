@@ -18,7 +18,9 @@ public class GenreRepository extends Repository<Genre> {
         try {
             int id = resultSet.getInt("genre_id");
             String name = resultSet.getString("name");
-            return new Genre(id, name);
+            int supergenreId = resultSet.getInt("supergenre_id");
+
+            return new Genre(id, name, supergenreId);
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
