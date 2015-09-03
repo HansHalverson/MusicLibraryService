@@ -5,6 +5,7 @@ import repository.Repository;
 import util.MusicLibraryRequestException;
 import util.SQLUtil;
 
+import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -114,11 +115,21 @@ public class MusicDatabase {
         PreparedStatement statement = null;
 
         try {
+
             Map<Column, String> sqlParams = SQLUtil.formatQueryParams(repository, queryParams);
-            statement = connection.prepareStatement("SELECT * FROM " + repository.getTableName() + " WHERE " + SQLUtil.createQueryTemplate(new ArrayList<>(sqlParams.keySet())) + ";");
+            ArrayList<Column> columns = new ArrayList<>(sqlParams.keySet());
+            statement = connection.prepareStatement("SELECT * FROM " + repository.getTableName() + " WHERE " + SQLUtil.createQueryTemplate(columns) + ";");
 
-            for (int i = 0; i < sqlParams.size(); i++) {
-
+            for (int i = 0; i < columns.size(); i++) {
+                Column column = columns.get(i);
+                switch (column.getColumnType()) {
+                    case INT:
+                        statement.setInt(i + 1, Integer.valueOf(sqlParams.get(column)));
+                        break;
+                    case STRING:
+                        statement.setString(i + 1, sqlParams.get(column));
+                        break;
+                }
             }
 
             ResultSet result = statement.executeQuery();
@@ -132,6 +143,9 @@ public class MusicDatabase {
 
         } catch (SQLException e) {
             e.printStackTrace();
+
+        } catch (NumberFormatException e) {
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_BAD_REQUEST, "Invalid number in query parameters");
 
         } finally {
             if (statement != null) {
