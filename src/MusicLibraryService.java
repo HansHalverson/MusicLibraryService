@@ -1,5 +1,4 @@
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +10,7 @@ import java.lang.Exception;
 
 import database.MusicDatabase;
 import repository.*;
+import util.UrlUtil;
 
 @WebServlet("/api")
 public class MusicLibraryService extends HttpServlet {
@@ -20,23 +20,9 @@ public class MusicLibraryService extends HttpServlet {
     GenreRepository genreRepository = new GenreRepository();
     SongRepository songRepository = new SongRepository();
 
-    private String getResourceFromRequest(HttpServletRequest request) {
-        String pathInfo = request.getPathInfo();
-        String resource = null;
-
-        if (pathInfo != null) {
-            String[] pathSections = pathInfo.substring(1).split("/");
-            if (pathSections.length > 0) {
-                resource = pathSections[0];
-            }
-        }
-
-        return resource;
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String resource = getResourceFromRequest(request);
+        String resource = UrlUtil.getPathSegment(request, 1);
 
         // Handle case where resource is not specified
         if (resource == null) {
@@ -67,7 +53,7 @@ public class MusicLibraryService extends HttpServlet {
         // Add the returned JSON to the http response
         response.setContentType("application/json");
 
-        JsonArray responseJson = repository.handleGet(request, response);
+        JsonValue responseJson = repository.handleGet(request);
 
         PrintWriter responseWriter = response.getWriter();
         responseWriter.write(responseJson.toString());

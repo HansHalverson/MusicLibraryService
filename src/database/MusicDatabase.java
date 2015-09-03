@@ -68,9 +68,11 @@ public class MusicDatabase {
                     entries.add(entry);
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+
         } finally {
             if (statement != null) {
                 statement.close();
@@ -78,5 +80,29 @@ public class MusicDatabase {
         }
 
         return entries;
+    }
+
+    public static JsonMappable getEntryWithId(Repository repository, int resourceId) throws SQLException {
+        JsonMappable entry = null;
+        Statement statement = null;
+
+        try {
+            statement = connection.createStatement();
+
+            ResultSet result = statement.executeQuery("SELECT * FROM " + repository.getTableName() + " WHERE " + repository.getTableName() + "_id = " + resourceId + ";");
+            result.next();
+
+            entry = repository.objectFromResultSet(result);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+
+        return entry;
     }
 }
