@@ -114,9 +114,12 @@ public class MusicDatabase {
         PreparedStatement statement = null;
 
         try {
-            Map<String, String> sqlParams = SQLUtil.formatQueryParams(repository, queryParams);
-            statement = connection.prepareStatement("SELECT * FROM " + repository.getTableName() + " WHERE " + SQLUtil.createQueryTemplate(sqlParams.size()) + ";");
+            Map<Column, String> sqlParams = SQLUtil.formatQueryParams(repository, queryParams);
+            statement = connection.prepareStatement("SELECT * FROM " + repository.getTableName() + " WHERE " + SQLUtil.createQueryTemplate(new ArrayList<>(sqlParams.keySet())) + ";");
 
+            for (int i = 0; i < sqlParams.size(); i++) {
+
+            }
 
             ResultSet result = statement.executeQuery();
 

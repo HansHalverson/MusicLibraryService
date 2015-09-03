@@ -1,5 +1,6 @@
 package repository;
 
+import database.Column;
 import database.MusicDatabase;
 import model.JsonMappable;
 import util.MusicLibraryRequestException;
@@ -17,7 +18,7 @@ public abstract class Repository<T> {
 
     public abstract String getTableName();
 
-    public abstract Map<String, String> getParamsToColumnNames();
+    public abstract Map<String, Column> getParamsToColumns();
 
     public JsonValue handleGet(HttpServletRequest request) throws MusicLibraryRequestException {
         String resourceId = UrlUtil.getPathSegment(request, 2);

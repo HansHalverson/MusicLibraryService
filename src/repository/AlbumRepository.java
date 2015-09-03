@@ -1,5 +1,6 @@
 package repository;
 
+import database.Column;
 import model.Album;
 import model.JsonMappable;
 
@@ -10,20 +11,23 @@ import java.util.Map;
 
 public class AlbumRepository extends Repository<Album> {
 
+    private Map<String, Column> paramsToColumns;
+
+    public AlbumRepository() {
+        paramsToColumns = new HashMap<>();
+        paramsToColumns.put("id", new Column("album_id", Column.ColumnType.INT));
+        paramsToColumns.put("name", new Column("name", Column.ColumnType.STRING));
+        paramsToColumns.put("artistId", new Column("artist_id", Column.ColumnType.INT));
+    }
+
     @Override
     public String getTableName() {
         return "album";
     }
 
     @Override
-    public Map<String, String> getParamsToColumnNames() {
-        Map<String, String> paramsToColumnNames = new HashMap<>();
-
-        paramsToColumnNames.put("id", "album_id");
-        paramsToColumnNames.put("name", "name");
-        paramsToColumnNames.put("artistId", "artist_id");
-
-        return paramsToColumnNames;
+    public Map<String, Column> getParamsToColumns() {
+        return paramsToColumns;
     }
 
     @Override

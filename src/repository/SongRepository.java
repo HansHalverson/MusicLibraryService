@@ -1,5 +1,6 @@
 package repository;
 
+import database.Column;
 import model.JsonMappable;
 import model.Song;
 
@@ -10,25 +11,28 @@ import java.util.Map;
 
 public class SongRepository extends Repository<Song> {
 
+    private Map<String, Column> paramsToColumns;
+
+    public SongRepository() {
+        paramsToColumns = new HashMap<>();
+        paramsToColumns.put("id", new Column("song_id", Column.ColumnType.INT));
+        paramsToColumns.put("name", new Column("name", Column.ColumnType.STRING));
+        paramsToColumns.put("file", new Column("file", Column.ColumnType.STRING));
+        paramsToColumns.put("time", new Column("time", Column.ColumnType.INT));
+        paramsToColumns.put("plays", new Column("plays", Column.ColumnType.INT));
+        paramsToColumns.put("trackNumber", new Column("track_number", Column.ColumnType.INT));
+        paramsToColumns.put("discNumber", new Column("disc_number", Column.ColumnType.INT));
+        paramsToColumns.put("albumId", new Column("album_id", Column.ColumnType.INT));
+    }
+
     @Override
     public String getTableName() {
         return "song";
     }
 
     @Override
-    public Map<String, String> getParamsToColumnNames() {
-        Map<String, String> paramsToColumnNames = new HashMap<>();
-
-        paramsToColumnNames.put("id", "song_id");
-        paramsToColumnNames.put("name", "name");
-        paramsToColumnNames.put("file", "file");
-        paramsToColumnNames.put("time", "time");
-        paramsToColumnNames.put("plays", "plays");
-        paramsToColumnNames.put("trackNumber", "track_number");
-        paramsToColumnNames.put("discNumber", "disc_number");
-        paramsToColumnNames.put("albumId", "album_id");
-
-        return paramsToColumnNames;
+    public Map<String, Column> getParamsToColumns() {
+        return paramsToColumns;
     }
 
     @Override

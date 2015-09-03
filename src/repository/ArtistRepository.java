@@ -1,5 +1,6 @@
 package repository;
 
+import database.Column;
 import model.Artist;
 
 import java.sql.ResultSet;
@@ -9,19 +10,22 @@ import java.util.Map;
 
 public class ArtistRepository extends Repository<Artist> {
 
+    private Map<String, Column> paramsToColumns;
+
+    public ArtistRepository() {
+        paramsToColumns = new HashMap<>();
+        paramsToColumns.put("id", new Column("artist_id", Column.ColumnType.INT));
+        paramsToColumns.put("name", new Column("name", Column.ColumnType.STRING));
+    }
+
     @Override
     public String getTableName() {
         return "artist";
     }
 
     @Override
-    public Map<String, String> getParamsToColumnNames() {
-        Map<String, String> paramsToColumnNames = new HashMap<>();
-
-        paramsToColumnNames.put("id", "artist_id");
-        paramsToColumnNames.put("name", "name");
-
-        return paramsToColumnNames;
+    public Map<String, Column> getParamsToColumns() {
+        return paramsToColumns;
     }
 
 
