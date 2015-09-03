@@ -10,10 +10,15 @@ import java.io.PrintWriter;
 import java.lang.Exception;
 
 import database.MusicDatabase;
-import repository.ArtistRepository;
+import repository.*;
 
 @WebServlet("/api")
 public class MusicLibraryService extends HttpServlet {
+
+    ArtistRepository artistRepository = new ArtistRepository();
+    AlbumRepository albumRepository = new AlbumRepository();
+    GenreRepository genreRepository = new GenreRepository();
+    SongRepository songRepository = new SongRepository();
 
     private String getResourceFromRequest(HttpServletRequest request) {
         String pathInfo = request.getPathInfo();
@@ -39,17 +44,20 @@ public class MusicLibraryService extends HttpServlet {
             return;
         }
 
-        JsonArray responseJson = null;
+        Repository repository;
 
         switch (resource) {
             case "artists":
-                responseJson = ArtistRepository.handleGet(request, response);
+                repository = artistRepository;
                 break;
             case "albums":
+                repository = albumRepository;
                 break;
             case "songs":
+                repository = songRepository;
                 break;
             case "genres":
+                repository = genreRepository;
                 break;
             default:
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource " + resource + " could not be found.");
@@ -59,8 +67,9 @@ public class MusicLibraryService extends HttpServlet {
         // Add the returned JSON to the http response
         response.setContentType("application/json");
 
-        PrintWriter responseWriter = response.getWriter();
+        JsonArray responseJson = repository.handleGet(request, response);
 
+        PrintWriter responseWriter = response.getWriter();
         responseWriter.write(responseJson.toString());
     }
 

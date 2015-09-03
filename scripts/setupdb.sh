@@ -16,8 +16,9 @@ if mysql.server start; then
 		CREATE TABLE IF NOT EXISTS song (
 			song_id INT NOT NULL,
 			name VARCHAR(255),
-			time INT,
 			file VARCHAR(255),
+			time INT,
+			plays INT,
 			track_number INT,
 			disc_number INT,
 			album_id INT NOT NULL,
@@ -27,10 +28,10 @@ if mysql.server start; then
 			genre_id INT NOT NULL,
 			name VARCHAR(255),
 			PRIMARY KEY (genre_id));
-		CREATE TABLE IF NOT EXISTS song_genre (
-			song_id INT NOT NULL,
+		CREATE TABLE IF NOT EXISTS album_genre (
+			album_id INT NOT NULL,
 			genre_id INT NOT NULL,
-			FOREIGN KEY (song_id) REFERENCES song(song_id),
+			FOREIGN KEY (album_id) REFERENCES album(album_id),
 			FOREIGN KEY (genre_id) REFERENCES genre(genre_id));" | mysql -u root;
 else
 	echo "Could not start mysql";

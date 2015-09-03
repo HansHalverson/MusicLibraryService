@@ -3,7 +3,7 @@ package model;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 
-public class Artist {
+public class Artist implements JsonMappable {
     private int id;
     private String name;
 
@@ -20,6 +20,7 @@ public class Artist {
         return name;
     }
 
+    @Override
     public JsonObjectBuilder toJsonObjectBuilder() {
         JsonObjectBuilder builder = Json.createObjectBuilder();
         builder.add("id", id);

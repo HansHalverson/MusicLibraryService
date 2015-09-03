@@ -1,7 +1,7 @@
 package database;
 
-import model.Artist;
-import model.Song;
+import model.JsonMappable;
+import repository.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -53,29 +53,19 @@ public class MusicDatabase {
         }
     }
 
-    private static Artist artistFromResultSet(ResultSet resultSet) {
-        try {
-            int id = resultSet.getInt("artist_id");
-            String name = resultSet.getString("name");
-            return new Artist(id, name);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
-    public static List<Artist> getAllArtists() throws SQLException {
-        List<Artist> artists = new ArrayList<>();
+    public static List<JsonMappable> getAllEntries(Repository repository) throws SQLException {
+        List<JsonMappable> entries = new ArrayList<>();
         Statement statement = null;
 
         try {
             statement = connection.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM artist;");
+            ResultSet result = statement.executeQuery("SELECT * FROM " + repository.getTableName() + ";");
 
             while(result.next()) {
-                Artist artist = artistFromResultSet(result);
-                if (artist != null) {
-                    artists.add(artist);
+                JsonMappable entry = repository.objectFromResultSet(result);
+                if (entry != null) {
+                    entries.add(entry);
                 }
             }
         } catch (SQLException e) {
@@ -87,6 +77,6 @@ public class MusicDatabase {
             }
         }
 
-        return artists;
+        return entries;
     }
 }

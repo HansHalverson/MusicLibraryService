@@ -1,4 +1,4 @@
 #!/bin/bash
 
-./destroydb.sh;
-./setupdb.sh;
+$(dirname $0)/destroydb.sh;
+$(dirname $0)/setupdb.sh;

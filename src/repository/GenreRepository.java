@@ -1,24 +1,24 @@
 package repository;
 
-import model.Artist;
+import model.Genre;
+import model.JsonMappable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ArtistRepository extends Repository<Artist> {
+public class GenreRepository extends Repository<Genre> {
 
     @Override
     public String getTableName() {
-        return "artist";
+        return "genre";
     }
 
-
     @Override
-    public Artist objectFromResultSet(ResultSet resultSet) {
+    public JsonMappable objectFromResultSet(ResultSet resultSet) {
         try {
-            int id = resultSet.getInt("artist_id");
+            int id = resultSet.getInt("genre_id");
             String name = resultSet.getString("name");
-            return new Artist(id, name);
+            return new Genre(id, name);
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
