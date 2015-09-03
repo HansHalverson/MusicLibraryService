@@ -10,6 +10,7 @@ import java.lang.Exception;
 
 import database.MusicDatabase;
 import repository.*;
+import util.MusicLibraryRequestException;
 import util.UrlUtil;
 
 @WebServlet("/api")
@@ -53,10 +54,15 @@ public class MusicLibraryService extends HttpServlet {
         // Add the returned JSON to the http response
         response.setContentType("application/json");
 
-        JsonValue responseJson = repository.handleGet(request);
+        try {
+            JsonValue responseJson = repository.handleGet(request);
 
-        PrintWriter responseWriter = response.getWriter();
-        responseWriter.write(responseJson.toString());
+            PrintWriter responseWriter = response.getWriter();
+            responseWriter.write(responseJson.toString());
+
+        } catch (MusicLibraryRequestException e) {
+            response.sendError(e.getStatusCode(), e.getMessage());
+        }
     }
 
     @Override

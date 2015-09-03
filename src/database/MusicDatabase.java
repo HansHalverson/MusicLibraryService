@@ -6,6 +6,7 @@ import repository.Repository;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MusicDatabase {
 
@@ -104,5 +105,32 @@ public class MusicDatabase {
         }
 
         return entry;
+    }
+
+    public static List<JsonMappable> getFilteredEntries(Repository repository, Map<String, String> queryParams) throws SQLException {
+        List<JsonMappable> entries = new ArrayList<>();
+        Statement statement = null;
+
+        try {
+            statement = connection.createStatement();
+            ResultSet result = statement.executeQuery("");
+
+            while(result.next()) {
+                JsonMappable entry = repository.objectFromResultSet(result);
+                if (entry != null) {
+                    entries.add(entry);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+
+        return entries;
     }
 }

@@ -1,6 +1,8 @@
 package util;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UrlUtil {
 
@@ -16,5 +18,18 @@ public class UrlUtil {
         }
 
         return segment;
+    }
+
+    public static Map<String, String> getQueryParameters(HttpServletRequest request) {
+        Map<String, String> queryParams = new HashMap<>();
+
+        Map<String, String[]> params = request.getParameterMap();
+        for (String key : params.keySet()) {
+            if (params.get(key).length == 1) {
+                queryParams.put(key, params.get(key)[0]);
+            }
+        }
+
+        return queryParams;
     }
 }
