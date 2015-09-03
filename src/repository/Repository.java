@@ -1,11 +1,14 @@
 package repository;
 
+import database.Column;
 import database.MusicDatabase;
 import model.JsonMappable;
+import util.MusicLibraryRequestException;
 import util.UrlUtil;
 
 import javax.json.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -15,21 +18,27 @@ public abstract class Repository<T> {
 
     public abstract String getTableName();
 
-    public JsonValue handleGet(HttpServletRequest request) {
+    public abstract Map<String, Column> getParamsToColumns();
+
+    public JsonValue handleGet(HttpServletRequest request) throws MusicLibraryRequestException {
         String resourceId = UrlUtil.getPathSegment(request, 2);
-        Map<String, String[]> params = request.getParameterMap();
+        Map<String, String> queryParams = UrlUtil.getQueryParameters(request);
 
         if (resourceId == null) {
-            if (params.isEmpty()) {
+            if (queryParams.isEmpty()) {
                 return getAllEntries();
             } else {
-                return null;
+                return getFilteredEntries(queryParams);
             }
         } else {
-            if (params.isEmpty()) {
-                return getEntryWithId(Integer.valueOf(resourceId));
+            if (queryParams.isEmpty()) {
+                try {
+                    return getEntryWithId(Integer.valueOf(resourceId));
+                } catch (NumberFormatException e) {
+                    throw new MusicLibraryRequestException(HttpServletResponse.SC_NOT_FOUND, "Invalid resource id.");
+                }
             } else {
-                return null;
+                throw new MusicLibraryRequestException(HttpServletResponse.SC_BAD_REQUEST, "Cannot specify both resource id and query parameters.");
             }
         }
     }
@@ -50,12 +59,33 @@ public abstract class Repository<T> {
         return builder.build();
     }
 
-    private JsonObject getEntryWithId(int resourceId) {
+    private JsonObject getEntryWithId(int resourceId) throws MusicLibraryRequestException {
         JsonObjectBuilder builder = Json.createObjectBuilder();
 
         try {
             JsonMappable entry = MusicDatabase.getEntryWithId(this, resourceId);
+
+            if (entry == null) {
+                throw new MusicLibraryRequestException(HttpServletResponse.SC_NOT_FOUND, "No resource found with given id.");
+            }
+
             builder = entry.toJsonObjectBuilder();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return builder.build();
+    }
+
+    private JsonArray getFilteredEntries(Map<String, String> queryParams) throws MusicLibraryRequestException {
+        JsonArrayBuilder builder = Json.createArrayBuilder();
+
+        try {
+            List<JsonMappable> entries = MusicDatabase.getFilteredEntries(this, queryParams);
+            for (JsonMappable entry : entries) {
+                builder.add(entry.toJsonObjectBuilder());
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();

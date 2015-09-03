@@ -2,10 +2,14 @@ package database;
 
 import model.JsonMappable;
 import repository.Repository;
+import util.MusicLibraryRequestException;
+import util.SQLUtil;
 
+import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MusicDatabase {
 
@@ -104,5 +108,51 @@ public class MusicDatabase {
         }
 
         return entry;
+    }
+
+    public static List<JsonMappable> getFilteredEntries(Repository repository, Map<String, String> queryParams) throws SQLException, MusicLibraryRequestException {
+        List<JsonMappable> entries = new ArrayList<>();
+        PreparedStatement statement = null;
+
+        try {
+
+            Map<Column, String> sqlParams = SQLUtil.formatQueryParams(repository, queryParams);
+            ArrayList<Column> columns = new ArrayList<>(sqlParams.keySet());
+            statement = connection.prepareStatement("SELECT * FROM " + repository.getTableName() + " WHERE " + SQLUtil.createQueryTemplate(columns) + ";");
+
+            for (int i = 0; i < columns.size(); i++) {
+                Column column = columns.get(i);
+                switch (column.getColumnType()) {
+                    case INT:
+                        statement.setInt(i + 1, Integer.valueOf(sqlParams.get(column)));
+                        break;
+                    case STRING:
+                        statement.setString(i + 1, sqlParams.get(column));
+                        break;
+                }
+            }
+
+            ResultSet result = statement.executeQuery();
+
+            while(result.next()) {
+                JsonMappable entry = repository.objectFromResultSet(result);
+                if (entry != null) {
+                    entries.add(entry);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        } catch (NumberFormatException e) {
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_BAD_REQUEST, "Invalid number in query parameters");
+
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
+
+        return entries;
     }
 }
