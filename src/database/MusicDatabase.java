@@ -5,6 +5,9 @@ import repository.Repository;
 import util.MusicLibraryRequestException;
 import util.SQLUtil;
 
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
 import java.util.ArrayList;
@@ -58,7 +61,7 @@ public class MusicDatabase {
     }
 
 
-    public static List<JsonMappable> getAllEntries(Repository repository) throws SQLException {
+    public static List<JsonMappable> getAllEntries(Repository repository) throws SQLException, MusicLibraryRequestException {
         List<JsonMappable> entries = new ArrayList<>();
         Statement statement = null;
 
@@ -75,7 +78,7 @@ public class MusicDatabase {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 
         } finally {
             if (statement != null) {
@@ -86,7 +89,7 @@ public class MusicDatabase {
         return entries;
     }
 
-    public static JsonMappable getEntryWithId(Repository repository, int resourceId) throws SQLException {
+    public static JsonMappable getEntryWithId(Repository repository, int resourceId) throws SQLException, MusicLibraryRequestException {
         JsonMappable entry = null;
         Statement statement = null;
 
@@ -100,6 +103,7 @@ public class MusicDatabase {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 
         } finally {
             if (statement != null) {
@@ -143,6 +147,7 @@ public class MusicDatabase {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 
         } catch (NumberFormatException e) {
             throw new MusicLibraryRequestException(HttpServletResponse.SC_BAD_REQUEST, "Invalid number in query parameters");
@@ -154,5 +159,44 @@ public class MusicDatabase {
         }
 
         return entries;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void createEntries(Repository repository, JsonArray newEntries) throws SQLException, MusicLibraryRequestException {
+        PreparedStatement statement = null;
+
+        try {
+            ArrayList<String> jsonKeys = new ArrayList<>(repository.getParamsToColumns().keySet());
+            statement = connection.prepareStatement("INSERT INTO " + repository.getTableName()
+                    + " " + SQLUtil.createColumnList(jsonKeys, repository.getParamsToColumns())
+                    + " VALUES " + SQLUtil.createInsertionTemplate(jsonKeys.size(), newEntries.size()) + ";");
+
+            int i = 1;
+            for (JsonValue newEntry : newEntries) {
+                for (String jsonKey : jsonKeys) {
+                    Column column = (Column) repository.getParamsToColumns().get(jsonKey);
+                    switch (column.getColumnType()) {
+                        case INT:
+                            statement.setInt(i, ((JsonObject) newEntry).getInt(jsonKey));
+                            break;
+                        case STRING:
+                            statement.setString(i, ((JsonObject) newEntry).getString(jsonKey));
+                            break;
+                    }
+                    i++;
+                }
+            }
+
+            statement.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+        }
     }
 }

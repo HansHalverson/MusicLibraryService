@@ -4,17 +4,17 @@ if mysql.server start; then
 	echo "CREATE DATABASE IF NOT EXISTS music_library;
 		USE music_library;
 		CREATE TABLE IF NOT EXISTS artist (
-			artist_id INT NOT NULL,
+			artist_id INT NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255),
 			PRIMARY KEY (artist_id));
 		CREATE TABLE IF NOT EXISTS album (
-			album_id INT NOT NULL,
+			album_id INT NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255),
 			artist_id INT NOT NULL,
 			PRIMARY KEY (album_id),
 			FOREIGN KEY (artist_id) REFERENCES artist(artist_id));
 		CREATE TABLE IF NOT EXISTS song (
-			song_id INT NOT NULL,
+			song_id INT NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255),
 			file VARCHAR(255),
 			time INT,
@@ -25,7 +25,7 @@ if mysql.server start; then
 			PRIMARY KEY (song_id),
 			FOREIGN KEY (album_id) REFERENCES album(album_id));
 		CREATE TABLE IF NOT EXISTS genre (
-			genre_id INT NOT NULL,
+			genre_id INT NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255),
 			supergenre_id INT,
 			PRIMARY KEY (genre_id),

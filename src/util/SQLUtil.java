@@ -3,6 +3,7 @@ package util;
 import database.Column;
 import repository.Repository;
 
+import javax.json.JsonArray;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Map;
 
 public class SQLUtil {
 
+    @SuppressWarnings("unchecked")
     public static Map<Column, String> formatQueryParams(Repository repository, Map<String, String> queryParams) throws MusicLibraryRequestException {
         Map<Column, String> sqlParams = new HashMap<>();
         Map<String, Column> queryParamsToColumns = repository.getParamsToColumns();
@@ -33,6 +35,37 @@ public class SQLUtil {
         }
         builder.append(columns.get(columns.size() - 1).getColumnName());
         builder.append(" = ?");
+        return builder.toString();
+    }
+
+    public static String createColumnList(ArrayList<String> keys, Map<String, Column> keysToColumns) {
+        StringBuilder builder = new StringBuilder("(");
+        for (int i = 0; i < keys.size() - 1; i++) {
+            builder.append(keysToColumns.get(keys.get(i)).getColumnName());
+            builder.append(", ");
+        }
+        builder.append(keysToColumns.get(keys.get(keys.size() - 1)).getColumnName());
+        builder.append(")");
+        return builder.toString();
+    }
+
+    public static String createInsertionTemplate(int numColumns, int numEntries) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < numEntries - 1; i++) {
+            builder.append("(");
+            for (int j = 0; j < numColumns - 1; j++) {
+                builder.append("?, ");
+            }
+            builder.append("?), ");
+        }
+
+        builder.append("(");
+        for (int i = 0; i < numColumns - 1; i++) {
+            builder.append("?, ");
+        }
+        builder.append("?)");
+
         return builder.toString();
     }
 }

@@ -21,40 +21,36 @@ public class MusicLibraryService extends HttpServlet {
     GenreRepository genreRepository = new GenreRepository();
     SongRepository songRepository = new SongRepository();
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private Repository selectRepository(HttpServletRequest request) throws MusicLibraryRequestException {
         String resource = UrlUtil.getPathSegment(request, 1);
 
         // Handle case where resource is not specified
         if (resource == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "No resource specified.");
-            return;
+            throw new MusicLibraryRequestException(HttpServletResponse.SC_BAD_REQUEST, "No resource specified.");
         }
-
-        Repository repository;
 
         switch (resource) {
             case "artists":
-                repository = artistRepository;
-                break;
+                return artistRepository;
             case "albums":
-                repository = albumRepository;
-                break;
+                return albumRepository;
             case "songs":
-                repository = songRepository;
-                break;
+                return songRepository;
             case "genres":
-                repository = genreRepository;
-                break;
+                return genreRepository;
             default:
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resource " + resource + " could not be found.");
-                return;
+                throw new MusicLibraryRequestException(HttpServletResponse.SC_NOT_FOUND, "Resource " + resource + " could not be found.");
         }
+    }
 
-        // Add the returned JSON to the http response
-        response.setContentType("application/json");
-
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
+            Repository repository = selectRepository(request);
+
+            // Add the returned JSON to the http response
+            response.setContentType("application/json");
+
             JsonValue responseJson = repository.handleGet(request);
 
             PrintWriter responseWriter = response.getWriter();
@@ -67,7 +63,13 @@ public class MusicLibraryService extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            Repository repository = selectRepository(request);
+            repository.handlePost(request);
 
+        } catch (MusicLibraryRequestException e) {
+            response.sendError(e.getStatusCode(), e.getMessage());
+        }
     }
 
     @Override
