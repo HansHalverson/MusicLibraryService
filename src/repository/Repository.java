@@ -53,7 +53,7 @@ public abstract class Repository<T> {
             try {
                 JsonReader reader = Json.createReader(request.getInputStream());
                 JsonArray newEntries = reader.readArray();
-                MusicDatabase.createEntries(newEntries);
+                MusicDatabase.createEntries(this, newEntries);
 
             } catch (IOException | SQLException e) {
                 e.printStackTrace();
