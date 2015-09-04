@@ -4,12 +4,9 @@ import database.Column;
 import database.MusicDatabase;
 import model.JsonMappable;
 import util.MusicLibraryRequestException;
-import util.UrlUtil;
 
 import javax.json.*;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -23,49 +20,7 @@ public abstract class Repository<T> {
 
     public abstract JsonMappable objectFromResultSet(ResultSet result);
 
-    public JsonValue handleGet(HttpServletRequest request) throws MusicLibraryRequestException {
-        String resourceId = UrlUtil.getPathSegment(request, 2);
-        Map<String, String> queryParams = UrlUtil.getQueryParameters(request);
-
-        if (resourceId == null) {
-            if (queryParams.isEmpty()) {
-                return getAllEntries();
-            } else {
-                return getFilteredEntries(queryParams);
-            }
-        } else {
-            if (queryParams.isEmpty()) {
-                try {
-                    return getEntryWithId(Integer.valueOf(resourceId));
-                } catch (NumberFormatException e) {
-                    throw new MusicLibraryRequestException(HttpServletResponse.SC_NOT_FOUND, "Invalid resource id.");
-                }
-            } else {
-                throw new MusicLibraryRequestException(HttpServletResponse.SC_BAD_REQUEST, "Cannot specify both resource id and query parameters.");
-            }
-        }
-    }
-
-    public void handlePost(HttpServletRequest request) throws MusicLibraryRequestException {
-        String resourceId = UrlUtil.getPathSegment(request, 2);
-
-        if (resourceId == null) {
-            try {
-                JsonReader reader = Json.createReader(request.getInputStream());
-                JsonArray newEntries = reader.readArray();
-                MusicDatabase.createEntries(this, newEntries);
-
-            } catch (IOException | SQLException e) {
-                e.printStackTrace();
-                throw new MusicLibraryRequestException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
-            }
-
-        } else {
-            throw new MusicLibraryRequestException(HttpServletResponse.SC_NOT_FOUND, "Cannot POST to resource");
-        }
-    }
-
-    private JsonArray getAllEntries() throws MusicLibraryRequestException {
+    public JsonArray getAllEntries() throws MusicLibraryRequestException {
         JsonArrayBuilder builder = Json.createArrayBuilder();
 
         try {
@@ -82,7 +37,7 @@ public abstract class Repository<T> {
         return builder.build();
     }
 
-    private JsonObject getEntryWithId(int resourceId) throws MusicLibraryRequestException {
+    public JsonObject getEntryWithId(int resourceId) throws MusicLibraryRequestException {
         JsonObjectBuilder builder = Json.createObjectBuilder();
 
         try {
@@ -102,7 +57,7 @@ public abstract class Repository<T> {
         return builder.build();
     }
 
-    private JsonArray getFilteredEntries(Map<String, String> queryParams) throws MusicLibraryRequestException {
+    public JsonArray getFilteredEntries(Map<String, String> queryParams) throws MusicLibraryRequestException {
         JsonArrayBuilder builder = Json.createArrayBuilder();
 
         try {
