@@ -1,6 +1,12 @@
+#Ignore all Java class files
+*.class
+
 #Ignore all JavaEE files
 JavaEE/
 
 #Ignore all IntelliJ project files
 .idea/
 *.iml
+
+#Ignore stored rym genres page
+genres.html

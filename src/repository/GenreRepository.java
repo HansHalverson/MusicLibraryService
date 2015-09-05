@@ -16,7 +16,6 @@ public class GenreRepository extends Repository<Genre> {
     public GenreRepository() {
         paramsToColumns = new HashMap<>();
         paramsToColumns.put("name", new Column("name", Column.ColumnType.STRING));
-        paramsToColumns.put("supergenreId", new Column("supergenre_id", Column.ColumnType.INT));
     }
 
     @Override
@@ -34,9 +33,8 @@ public class GenreRepository extends Repository<Genre> {
         try {
             int id = resultSet.getInt("genre_id");
             String name = resultSet.getString("name");
-            int supergenreId = resultSet.getInt("supergenre_id");
 
-            return new Genre(id, name, supergenreId);
+            return new Genre(id, name);
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

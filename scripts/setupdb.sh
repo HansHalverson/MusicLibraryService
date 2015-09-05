@@ -27,14 +27,17 @@ if mysql.server start; then
 		CREATE TABLE IF NOT EXISTS genre (
 			genre_id INT NOT NULL AUTO_INCREMENT,
 			name VARCHAR(255),
-			supergenre_id INT,
-			PRIMARY KEY (genre_id),
-			FOREIGN KEY (supergenre_id) REFERENCES genre(genre_id));
+			PRIMARY KEY (genre_id));
 		CREATE TABLE IF NOT EXISTS album_genre (
 			album_id INT NOT NULL,
 			genre_id INT NOT NULL,
 			FOREIGN KEY (album_id) REFERENCES album(album_id),
-			FOREIGN KEY (genre_id) REFERENCES genre(genre_id));" | mysql -u root;
+			FOREIGN KEY (genre_id) REFERENCES genre(genre_id));
+		CREATE TABLE IF NOT EXISTS supergenre_subgenre (
+			supergenre_id INT NOT NULL,
+			subgenre_id INT NOT NULL,
+			FOREIGN KEY (supergenre_id) REFERENCES genre(genre_id),
+			FOREIGN KEY (subgenre_id) REFERENCES genre(genre_id));" | mysql -u root;
 else
 	echo "Could not start mysql";
 fi

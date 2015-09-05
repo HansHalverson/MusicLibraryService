@@ -7,19 +7,30 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.Exception;
+import java.util.HashMap;
 
+import actions.Action;
+import actions.ScrapeGenresAction;
 import database.MusicDatabase;
 import endpoints.*;
+import model.Album;
+import model.Artist;
+import model.Genre;
+import model.Song;
+import repository.AlbumRepository;
+import repository.ArtistRepository;
+import repository.GenreRepository;
+import repository.SongRepository;
 import util.MusicLibraryRequestException;
 import util.UrlUtil;
 
 @WebServlet("/api")
 public class MusicLibraryService extends HttpServlet {
 
-    ArtistEndpoint artistEndpoint = new ArtistEndpoint();
-    AlbumEndpoint albumEndpoint = new AlbumEndpoint();
-    GenreEndpoint genreEndpoint = new GenreEndpoint();
-    SongEndpoint songEndpoint = new SongEndpoint();
+    private Endpoint<Artist> artistEndpoint;
+    private Endpoint<Album> albumEndpoint;
+    private Endpoint<Genre> genreEndpoint;
+    private Endpoint<Song> songEndpoint;
 
     private Endpoint selectEndpoint(HttpServletRequest request) throws MusicLibraryRequestException {
         String resource = UrlUtil.getPathSegment(request, 1);
@@ -76,6 +87,16 @@ public class MusicLibraryService extends HttpServlet {
     public void init() {
         try {
             MusicDatabase.init();
+
+            artistEndpoint = new Endpoint<>(new ArtistRepository());
+            albumEndpoint = new Endpoint<>(new AlbumRepository());
+            songEndpoint = new Endpoint<>(new SongRepository());
+
+            // Set up actions and initialize genre endpoint
+            HashMap<String, Action> genreEndpointActions = new HashMap<>();
+            genreEndpointActions.put("scrape", new ScrapeGenresAction());
+            genreEndpoint = new Endpoint<>(new GenreRepository(), genreEndpointActions);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
